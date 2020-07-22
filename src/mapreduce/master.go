@@ -27,7 +27,7 @@ type Master struct {
 	nReduce int      // Number of reduce partitions
 
 	shutdown chan struct{}
-	l        net.Listener
+	l        net.Listener // Initialize in mater_rpc StartRPCServer
 	stats    []int
 }
 
