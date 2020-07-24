@@ -772,6 +772,7 @@ func (rf *Raft) startElection() {
 					send(rf.voteCh)
 					return
 				} else if rf.state != Candidate || rf.currentTerm != args.Term {
+					// It is important to check the condition before RPC call still holds
 					// The sender itself has change its state already
 					// This may happens because it takes a long time to get the reply
 					// In this case, nothing to do
