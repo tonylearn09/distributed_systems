@@ -825,6 +825,11 @@ func (rf *Raft) updateLastApplied() {
 	// Caller hold the lock
 	// If commitIndex > lastApplied: increment lastApplied,
 	// apply log[lastApplied] to state machine
+
+	// We use Max(..., rf.lastIncludedIndex) to guard against
+	// rf.lastApplied < rf.lastIncludedIndex
+	// Note: we know that our lastApplied should be at least
+	// lastIncludedIndex because we have take the snapshot
 	rf.lastApplied = Max(rf.lastApplied, rf.lastIncludedIndex)
 	rf.commitIndex = Max(rf.commitIndex, rf.lastIncludedIndex)
 	for rf.lastApplied < rf.commitIndex {
@@ -917,6 +922,7 @@ func Make(peers []*labrpc.ClientEnd, me int,
 
 	rf.applyCh = applyCh
 	// Use buffered channel to avoid go routine leak
+	// and non blocking
 	rf.killCh = make(chan bool, 1)
 	rf.voteCh = make(chan bool, 1)
 	rf.appendLogCh = make(chan bool, 1)
