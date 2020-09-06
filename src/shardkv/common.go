@@ -10,9 +10,9 @@ package shardkv
 //
 
 const (
-	OK            = "OK"
-	ErrNoKey      = "ErrNoKey"
-	ErrWrongGroup = "ErrWrongGroup"
+	OK             = "OK"
+	ErrWrongLeader = "ErrWrongLeader"
+	ErrWrongGroup  = "ErrWrongGroup"
 )
 
 type Err string
@@ -26,20 +26,43 @@ type PutAppendArgs struct {
 	// You'll have to add definitions here.
 	// Field names must start with capital letters,
 	// otherwise RPC will break.
+	Cid    int64 "client unique id"
+	SeqNum int   "each request with a monotonically increasing sequence number"
 }
 
 type PutAppendReply struct {
-	WrongLeader bool
-	Err         Err
+	//WrongLeader bool
+	Err Err
 }
 
 type GetArgs struct {
 	Key string
 	// You'll have to add definitions here.
+	Time int64
 }
 
 type GetReply struct {
-	WrongLeader bool
-	Err         Err
-	Value       string
+	//WrongLeader bool
+	Err   Err
+	Value string
+}
+
+type MigrateArgs struct {
+	Shard     int
+	ConfigNum int
+}
+
+type MigrateReply struct {
+	Err       Err
+	ConfigNum int
+	Shard     int
+	DB        map[string]string
+	Cid2Seq   map[int64]int
+}
+
+func Max(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
 }
