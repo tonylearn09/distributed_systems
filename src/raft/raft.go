@@ -462,15 +462,15 @@ func (rf *Raft) InstallSnapshot(args *InstallSnapshotArgs, reply *InstallSnapsho
 	}
 	send(rf.appendLogCh)
 
-	if args.LastIncludedIndex <= rf.getLastLogIndex() {
-		// discard snapshot with a smaller index
+	if args.LastIncludedIndex <= rf.lastIncludedIndex {
+		// discard any existing or partial snapshot with a smaller index
 		return
 	}
 
 	applyMsg := ApplyMsg{CommandValid: false, SnapShot: args.Data}
 	if args.LastIncludedIndex < rf.logLen()-1 {
-		// still need to keep the logs after args.LastIncludedIndex
 		// Note that we include args.LastIncludedIndex as our dummy variable for the 0th index
+		//If existing log entry has same index and term as snapshot’s last included entry,retain log entries following it and reply
 		rf.logs = append(make([]LogEntry, 0), rf.logs[args.LastIncludedIndex-rf.lastIncludedIndex:]...)
 	} else {
 		// dummy variable for the 0th index
